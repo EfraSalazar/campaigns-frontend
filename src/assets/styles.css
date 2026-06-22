@@ -5,6 +5,10 @@
   font-size: 16px;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 * {
   box-sizing: border-box;
 }
