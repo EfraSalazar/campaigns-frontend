@@ -1012,6 +1012,8 @@ async function addSelected() {
     await addRecipientsByIds(selectedCampaign.value.id, selectedIds.value, eventId)
     recipients.value = await getRecipients(selectedCampaign.value.id)
     clearSelection()
+    // Refrescar candidatos: los recién agregados ya no deben aparecer en la lista.
+    await previewCampaignRecipients()
   })
 }
 
