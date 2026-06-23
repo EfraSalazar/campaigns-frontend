@@ -303,6 +303,25 @@
               </label>
             </div>
 
+            <div class="exclude-registered">
+              <label class="exclude-check">
+                <input
+                  type="checkbox"
+                  :checked="!!filters.excludeRegisteredEventId"
+                  @change="toggleExcludeRegistered($event.target.checked)"
+                />
+                <span>No enviar a quienes ya se registraron a</span>
+              </label>
+              <select
+                v-model="filters.excludeRegisteredEventId"
+                :disabled="!filters.excludeRegisteredEventId"
+              >
+                <option v-for="event in events" :key="event.id" :value="event.id">
+                  {{ event.name }}{{ event.registrationCount != null ? ` (${event.registrationCount} registrados)` : '' }}
+                </option>
+              </select>
+            </div>
+
             <div class="step-actions">
               <button class="secondary" @click="previewCampaignRecipients">🔍 Previsualizar</button>
               <span class="muted-text">{{ preview.total }} posibles · {{ selectedIds.length }} seleccionados</span>
@@ -578,6 +597,7 @@ async function saveCurrentSegment() {
     const snapshot = {
       search: filters.search,
       eventId: filters.eventId,
+      excludeRegisteredEventId: filters.excludeRegisteredEventId,
       city: filters.city,
       state: filters.state,
       church: filters.church,
@@ -593,6 +613,7 @@ async function applySegment(seg) {
   const f = seg.filters || {}
   filters.search = f.search || ''
   filters.eventId = f.eventId ?? ''
+  filters.excludeRegisteredEventId = f.excludeRegisteredEventId ?? ''
   filters.city = f.city || ''
   filters.state = f.state || ''
   filters.church = f.church || ''
@@ -742,6 +763,7 @@ const filters = reactive({
   state: '',
   church: '',
   eventId: '',
+  excludeRegisteredEventId: '',
   requireConsent: false,
   consentPurpose: 'IntimosEvents',
   consentChannel: 'WhatsApp',
@@ -935,6 +957,15 @@ async function previewCampaignRecipients() {
     const visible = new Set(candidates.value.map((c) => c.id))
     selectedIds.value = selectedIds.value.filter((id) => visible.has(id))
   })
+}
+
+function toggleExcludeRegistered(checked) {
+  if (checked) {
+    const active = events.value.find((e) => e.isActive) || events.value[0]
+    filters.excludeRegisteredEventId = active ? active.id : ''
+  } else {
+    filters.excludeRegisteredEventId = ''
+  }
 }
 
 function toggleContact(id, checked) {
