@@ -783,6 +783,109 @@ button.logout {
   color: #8a5200;
 }
 
+.recipient-search {
+  margin: 8px 0 12px;
+  max-width: 380px;
+}
+
+.progress-box {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.progress-track {
+  background: #e5ebf2;
+  border-radius: 999px;
+  flex: 1;
+  height: 12px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: #1f7a3d;
+  border-radius: 999px;
+  height: 100%;
+  transition: width 0.6s ease;
+}
+
+.logs-box {
+  margin-top: 16px;
+}
+
+.logs-box summary {
+  color: #1c5c85;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.logs-box .table-wrap {
+  margin-top: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.logs-table {
+  font-size: 13px;
+  min-width: 640px;
+}
+
+.logs-table small {
+  color: #73859a;
+  display: block;
+}
+
+.rendered-preview {
+  margin-top: 10px;
+}
+
+.rendered-preview p {
+  margin-bottom: 4px;
+}
+
+.msg-preview-body.rendered {
+  background: #eef9f0;
+  border-color: #c7e7cf;
+}
+
+.send-buttons {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.schedule-picker {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.schedule-picker input {
+  min-height: 38px;
+  width: auto;
+}
+
+.notice.schedule-active {
+  align-items: center;
+  background: #eef4ff;
+  border: 1px solid #c7d8f5;
+  color: #1f3a6b;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+.fail-reason {
+  color: #b3261e;
+  display: block;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
 .msg-preview {
   margin-top: 6px;
 }

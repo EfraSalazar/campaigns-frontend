@@ -136,6 +136,27 @@ export async function clearRecipients(campaignId) {
   return data
 }
 
+export async function removeRecipientById(campaignId, recipientId) {
+  const { data } = await api.delete(`/Campaigns/${campaignId}/recipients/${recipientId}`)
+  return data
+}
+
+export async function getCampaignLogs(campaignId) {
+  const { data } = await api.get(`/Campaigns/${campaignId}/logs`)
+  return data
+}
+
+export async function getRenderedPreview(campaignId, contactId) {
+  const params = contactId ? { contactId } : {}
+  const { data } = await api.get(`/Campaigns/${campaignId}/render`, { params })
+  return data
+}
+
+export async function duplicateCampaignRequest(campaignId) {
+  const { data } = await api.post(`/Campaigns/${campaignId}/duplicate`)
+  return data
+}
+
 export async function updateCampaign(campaignId, payload) {
   const { data } = await api.put(`/Campaigns/${campaignId}`, payload)
   return data
@@ -143,6 +164,16 @@ export async function updateCampaign(campaignId, payload) {
 
 export async function deleteCampaign(campaignId) {
   const { data } = await api.delete(`/Campaigns/${campaignId}`)
+  return data
+}
+
+export async function scheduleCampaign(campaignId, scheduledAt, channel) {
+  const { data } = await api.post(`/Campaigns/${campaignId}/schedule`, { scheduledAt, channel })
+  return data
+}
+
+export async function cancelCampaignSchedule(campaignId) {
+  const { data } = await api.delete(`/Campaigns/${campaignId}/schedule`)
   return data
 }
 
