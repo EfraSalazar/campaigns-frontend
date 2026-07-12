@@ -295,7 +295,7 @@
                 </thead>
                 <tbody>
                   <tr v-for="log in campaignLogs" :key="log.id">
-                    <td>{{ formatDateTime(log.createdAt) }}</td>
+                    <td>{{ formatUtcDateTime(log.createdAt) }}</td>
                     <td>
                       {{ log.contactName || '—' }}
                       <small>{{ log.recipient }}</small>
@@ -384,6 +384,7 @@ import {
   filters,
   formatBytes,
   formatDateTime,
+  formatUtcDateTime,
   hasChannel,
   isGroupFullySelected,
   joinLocation,

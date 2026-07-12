@@ -6,6 +6,7 @@ import {
   promptText,
   successModal,
   toastError,
+  toastInfo,
   toastSuccess
 } from './services/alerts'
 import {
@@ -471,6 +472,9 @@ export async function selectCampaign(campaign) {
   campaignLogs.value = []
   renderedPreview.value = null
   activeView.value = 'review'
+  // Si el servidor sigue enviando esta campaña, retomar el seguimiento en vivo
+  // (sin await: el seguimiento corre de fondo mientras el usuario usa el panel).
+  resumeTrackingIfSending()
 }
 
 export function insertTemplate() {
@@ -634,12 +638,39 @@ export async function clearAllRecipients() {
 async function pollCampaignUntilDone(campaignId) {
   while (true) {
     await new Promise((resolve) => setTimeout(resolve, 4000))
+    // Si el usuario cambió de campaña, este seguimiento deja de aplicar.
+    if (!selectedCampaign.value || selectedCampaign.value.id !== campaignId) {
+      return null
+    }
     const updated = await getCampaign(campaignId)
     recipients.value = await getRecipients(campaignId)
     if (updated.status !== 'Sending') {
       return updated
     }
   }
+}
+
+// Si la campaña seleccionada ya se está enviando en el servidor (p.ej. el usuario cerró el
+// navegador a media campaña y volvió a entrar), reanuda el seguimiento en vivo.
+export async function resumeTrackingIfSending() {
+  if (!selectedCampaign.value || sending.value) return
+  if (selectedCampaign.value.status !== 'Sending') return
+
+  sending.value = true
+  toastInfo('Esta campaña se está enviando en el servidor; mostrando progreso en vivo.')
+  await safeLoad(async () => {
+    const finalCampaign = await pollCampaignUntilDone(selectedCampaign.value.id)
+    if (!finalCampaign) return // el usuario cambió de campaña
+    selectedCampaign.value.status = finalCampaign.status
+
+    const key = channelStatusKey.value
+    const sentCount = recipients.value.filter((r) => r[key] === 'Sent').length
+    const failedCount = recipients.value.filter((r) => r[key] === 'Failed').length
+    sendResult.value = { sent: sentCount, failed: failedCount, channel: sendChannel.value }
+    if (failedCount > 0) toastError(`Envío terminado: ${sentCount} enviados, ${failedCount} fallidos`)
+    else toastSuccess(`Envío terminado: ${sentCount} enviados`)
+  })
+  sending.value = false
 }
 
 export async function sendCampaign() {
@@ -662,6 +693,7 @@ export async function sendCampaign() {
     const channel = sendChannel.value
     const accepted = await sendCampaignRequest(campaignId, channel)
     const finalCampaign = await pollCampaignUntilDone(campaignId)
+    if (!finalCampaign) return // el usuario cambió de campaña; el envío sigue en el servidor
     if (selectedCampaign.value) selectedCampaign.value.status = finalCampaign.status
 
     const key = channel === 'WhatsApp' ? 'whatsAppStatus' : 'emailStatus'
@@ -729,6 +761,15 @@ export function formatDateTime(value) {
   } catch {
     return String(value)
   }
+}
+
+// Para timestamps que el backend guarda en UTC (p.ej. CommunicationLogs.CreatedAt): el JSON
+// llega sin sufijo 'Z', y sin él el navegador lo interpretaría como hora local (+6h de error).
+// NO usar para ScheduledAt, que se guarda como hora de pared CDMX.
+export function formatUtcDateTime(value) {
+  if (!value) return ''
+  const hasTimezone = /Z$|[+-]\d{2}:\d{2}$/.test(value)
+  return formatDateTime(hasTimezone ? value : `${value}Z`)
 }
 
 // ── Utilidades ───────────────────────────────────────────────────────────────
